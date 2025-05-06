@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>ominiflix)</title>
+<style>
+  /* Reset */
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    background-color: #141414;
+    color: white;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    overflow-x: hidden; /* Impede rolagem horizontal indesejada no body */
+    padding-bottom: 40px;
+    min-height: 100vh;
+  }
+
+  header {
+    background-color: #111;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.8);
+    position: sticky; /* Mantém o cabeçalho no topo ao rolar */
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo {
+    font-weight: 900;
+    font-size: 1.75rem;
+    color: #e50914;
+    letter-spacing: 2px;
+    user-select:none; /* Impede seleção de texto no logo */
+  }
+
+  main {
+    margin-top: 8px;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+    margin-left: 20px;
+    margin-bottom: 12px;
+    user-select:none;
+  }
+
+  .slider-container {
+    position: relative;
+    margin-bottom: 36px;
+    max-width: 100%; /* Garante que o container não ultrapasse a largura do pai */
+    overflow: hidden; /* Esconde partes dos botões que sairiam do container */
+    user-select:none;
+  }
+
+  .slider {
+    display: flex;
+    gap: 12px; /* Espaço entre os cards */
+    overflow-x: auto; /* Habilita a rolagem horizontal */
+    scroll-behavior: smooth; /* Rolagem suave com botões/script */
+    padding-left: 20px; /* Espaço antes do primeiro card */
+    padding-right: 20px; /* Espaço depois do último card (ajuda a centralizar o último item ao rolar) */
+    padding-bottom: 10px; /* Espaço para a sombra do hover */
+    -webkit-overflow-scrolling: touch; /* Melhora a rolagem em dispositivos iOS */
+  }
+  /* Esconde a barra de rolagem visualmente */
+  .slider::-webkit-scrollbar {
+    display: none; /* Para Chrome, Safari e Opera */
+  }
+  .slider {
+    scrollbar-width: none; /* Para Firefox */
+  }
+
+  .movie-card {
+    flex: 0 0 auto; /* Impede que os cards encolham ou cresçam */
+    width: 180px; /* Tamanho base para desktop */
+    height: 270px; /* Proporção 2:3 */
+    background-color: #222; /* Cor de fundo caso a imagem não carregue */
+    border-radius: 6px;
+    box-shadow: 0 0 8px rgba(0,0,0,0.5); /* Sombra sutil */
+    /* cursor: pointer;  Removido do .movie-card geral para não aparecer em divs */
+    position: relative;
+    transition: transform 0.3s ease;
+    text-decoration: none; /* Remove underline de links */
+    color: white;
+    overflow: hidden; /* Garante que a imagem arredondada se encaixe */
+    display: block; /* Garante que <a> ou <div> se comportem como bloco para tamanho */
+  }
+
+  /* Adiciona cursor: pointer apenas para os links */
+  .movie-card[href] {
+      cursor: pointer;
+  }
+
+
+  .movie-card:hover {
+    transform: scale(1.08); /* Amplia no hover */
+    z-index: 10; /* Garante que o card ampliado fique acima dos vizinhos */
+    box-shadow: 0 0 15px rgba(0,0,0,0.8); /* Sombra mais proeminente no hover */
+  }
+  .movie-poster {
+    width: 100%;
+    height: 100%;
+    border-radius: 6px; /* Mesma borda do container */
+    object-fit: cover; /* Cobre a área do card sem distorcer a imagem */
+    display: block;
+  }
+
+  .nav-button {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(20, 20, 20, 0.6); /* Fundo semitransparente */
+    border: none;
+    color: white;
+    font-size: 2rem;
+    padding: 12px 16px; /* Padding maior para área de clique */
+    border-radius: 4px; /* Cantos levemente arredondados */
+    cursor: pointer;
+    z-index: 20; /* Acima dos cards e do slider */
+    user-select:none;
+    transition: background-color 0.3s ease, opacity 0.3s ease;
+    opacity: 0; /* Inicialmente oculto */
+    pointer-events: none; /* Não interage com mouse quando oculto */
+  }
+  .slider-container:hover .nav-button {
+      opacity: 1; /* Mostra os botões ao passar o mouse sobre o container */
+      pointer-events: auto; /* Habilita interação com mouse */
+  }
+  .nav-button:hover {
+    background-color: rgba(255, 0, 0, 0.9); /* Cor no hover */
+  }
+  .nav-left {
+    left: 0; /* Posição na borda esquerda */
+  }
+  .nav-right {
+    right: 0; /* Posição na borda direita */
+  }
+
+  /* Oculta os botões em telas menores onde a rolagem por toque é esperada */
+  @media (max-width: 768px) {
+      .nav-button {
+          display: none;
+      }
+      .slider-container:hover .nav-button { /* Também oculto no hover */
+          opacity: 0;
+      }
+  }
+
+
+  /* Estilos Responsivos */
+
+  /* Tablet / Desktop Pequeno */
+  @media (max-width: 1024px) {
+    h2 {
+      font-size: 1.4rem;
+      margin-left: 15px;
+      margin-bottom: 10px;
+    }
+    .movie-card {
+      width: 160px;
+      height: 240px;
+    }
+    .slider {
+      gap: 10px;
+      padding-left: 15px;
+      padding-right: 15px;
+    }
+     .nav-button {
+        padding: 10px 14px;
+     }
+  }
+
+  /* Mobile Grande / Tablet Pequeno */
+  @media (max-width: 768px) {
+    header {
+      padding: 10px 15px;
+    }
+    .logo {
+      font-size: 1.5rem;
+    }
+    h2 {
+      font-size: 1.3rem;
+      margin-left: 10px;
+      margin-bottom: 8px;
+    }
+    .movie-card {
+      width: 130px;
+      height: 195px;
+      border-radius: 4px;
+    }
+     .movie-poster {
+        border-radius: 4px;
+     }
+    .slider {
+      gap: 8px;
+      padding-left: 10px;
+      padding-right: 10px;
+      padding-bottom: 8px;
+    }
+    /* Botões de navegação ocultos (definido acima) */
+  }
+
+  /* Mobile Pequeno */
+  @media (max-width: 480px) {
+    header {
+      padding: 8px 10px;
+    }
+    .logo {
+      font-size: 1.2rem;
+    }
+    h2 {
+      font-size: 1.1rem;
+      margin-left: 8px;
+      margin-bottom: 6px;
+    }
+    .movie-card {
+      width: 100px;
+      height: 150px;
+      border-radius: 3px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.4);
+    }
+     .movie-poster {
+        border-radius: 3px;
+     }
+    .slider {
+      gap: 6px;
+      padding-left: 8px;
+      padding-right: 8px;
+      padding-bottom: 6px;
+    }
+  }
+
+
+  /* Footer minimal */
+  footer {
+    text-align: center;
+    font-size: 0.85rem;
+    color: #666;
+    padding: 20px;
+    margin-top: 30px; /* Espaço acima do rodapé */
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="logo" aria-label="Logo Netflix">OMINIFLIX</div>
+</header>
+<main>
+  <section>
+    <h2>Logística</h2>
+    <div class="slider-container">
+      <button class="nav-button nav-left" aria-label="Scroll para esquerda" data-target="slider1">❮</button>
+      <div class="slider" id="slider1" tabindex="0" aria-label="Carrossel de Filmes em Destaque">
+        <!-- >>> APENAS ESTA SEÇÃO USA LINKS <a> para navegação (mantidos como estavam) <<< -->
+        <a href="detalhe1.html" class="movie-card" title="Pôster de Filme 1">
+          <img class="movie-poster" src="https://images.unsplash.com/photo-1535185184140-e1fbc610a10f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w2MDgwNXwwfDF8c2VhcmNofDF8fHZlcnRpY2FsJTIwbW92aWUlMjBwb3N0ZXJ8ZW58MHx8fHwxNzE0NzI4NDg3fDA&ixlib=rb-4.0.3&q=80&w=400" alt="Pôster de Filme 1" loading="lazy" />
+        </a>
+        <a href="detalhe2.html" class="movie-card" title="Pôster de Filme 2">
+          <img class="movie-poster" src="https://images.unsplash.com/photo-1545117570-f455f20c88a9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w2MDgwNXwwfDF8c2VhcmNofDJ8fHZlcnRpY2FsJTIwbW92aWUlMjBwb3N0ZXJ8ZW58MHx8fHwxNzE0NzI4NDg3fDA&ixlib=rb-4.0.3&q=80&w=400" alt="Pôster de Filme 2" loading="lazy" />
+        </a>
+        <a href="detalhe3.html" class="movie-card" title="Pôster de Filme 3">
+          <img class="movie-poster" src="https://images.unsplash.com/photo-1579568678257-07189c868535?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w2MDgwNXwwfDF8c2VhcmNofDN8fHZlcnRpY2FsJTIwbW92aWUlMjBwb3N0ZXJ8ZW58MHx8fHwxNzE0NzI4NDg3fDA&ixlib=rb-4.0.3&q=80&w=400" alt="Pôster de Filme 3" loading="lazy" />
+        </a>
+        <a href="detalhe4.html" class="movie-card" title="Pôster de Filme 4">
+          <img class="movie-poster" src="https://images.unsplash.com/photo-1600077779327-b11106df8b0c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w2MDgwNXwwfDF8c2VhcmNofDR8fHZlcnRpY2FsJTIwbW92aWUlMjBwb3N0ZXJ8ZW58MHx8fHwxNzE0NzI4NDg3fDA&ixlib=rb-4.0.3&q=80&w=400" alt="Pôster de Filme 4" loading="lazy" />
+        </a>
+        <a href="detalhe5.html" class="movie-card" title="Pôster de Filme 5">
+          <img class="movie-poster" src="https://images.unsplash.com/photo-1597249097201-bc0850988bc6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w2MDgwNXwwfDF8c2VhcmNofDV8fHZlcnRpY2FsJTIwbW92aWUlMjBwb3N0ZXJ8ZW58MHx8fHwxNzE0NzI4NDg3fDA&ixlib=rb-4.0.3&q=80&w=400" alt="Pôster de Filme 5" loading="lazy" />
+        </a>
+         <a href="detalhe6.html" class="movie-card" title="Pôster de Filme 6">
+          <img class="movie-poster" src="https://images.unsplash.com/photo-1545117570-f455f20c88a9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w2MDgwNXwwfDF8c2VhcmNofDJ8fHZlY29ydGljYWwlMjBtb3ZpZSUyMHBvc3RlcnxlbnwwfHwwfHwxNzE0NzM1MjI1fDA&ixlib=rb-4.0.3&q=80&w=400" alt="Pôster de Filme 6" loading="lazy" />
+        </a>
+        <a href="detalhe7.html" class="movie-card" title="Pôster de Filme 7">
+          <img class="movie-poster" src="https://images.unsplash.com/photo-1600077779327-b11106df8b0c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w2MDgwNXwwfDF8c2VhcmNofDR8fHZlY29ydGljYWwlMjBtb3ZpZSUyMHBvc3RlcnxlbnwwfHwwfHwxNzE0NzM1MjI1fDA&ixlib=rb-4.0.3&q=80&w=400" alt="Pôster de Filme 7" loading="lazy" />
+        </a>
+        <a href="detalhe8.html" class="movie-card" title="Pôster de Filme 8">
+          <img class="movie-poster" src="https://images.unsplash.com/photo-1535185184140-e1fbc610a10f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w2MDgwNXwwfDF8c2VhcmNofDF8fHZlY29ydGljYWwlMjBtb3ZpZSUyMHBvc3RlcnxlbnwwfHwwfHwxNzE0NzM1MjI1fDA&ixlib=rb-4.0.3&q=80&w=400" alt="Pôster de Filme 8" loading="lazy" />
+        </a>
+        <a href="detalhe9.html" class="movie-card" title="Pôster de Filme 9">
+          <img class="movie-poster" src="https://images.unsplash.com/photo-1579568678257-07189c868535?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w2MDgwNXwwfDF8c2VhcmNofDN8fHZlY29ydGljYWwlMjBtb3ZpZSUyMHBvc3RlcnxlbnwwfHwwfHwxNzE0NzM1MjI1fDA&ixlib=rb-4.0.3&q=80&w=400" alt="Pôster de Filme 9" loading="lazy" />
+        </a>
+        <a href="detalhe10.html" class="movie-card" title="Pôster de Filme 10">
+          <img class="movie-poster" src="https://images.unsplash.com/photo-1597249097201-bc0850988bc6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w2MDgwNXwwfDF8c2VhcmNofDV8fHZlY29ydGljYWwlMjBtb3ZpZSUyMHBvc3RlcnxlbnwwfHwwfHwxNzE0NzM1MjI1fDA&ixlib=rb-4.0.3&q=80&w=400" alt="Pôster de Filme 10" loading="lazy" />
+        </a>
+         <a href="detalhe11.html" class="movie-card" title="Pôster de Filme 11">
+          <img class="movie-poster" src="https://images.unsplash.com/photo-1545117570-f455f20c88a9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w2MDgwNXwwfDF8c2VhcmNofDJ8fHZlcnRpY2FsJTIwbW92aWUlMjBwb3N0ZXIlMjBoaWdoJTIwcmVzJmVuMHx8MHx8fDE3MTQ3Mjg1MjN8MA&ixlib=rb-4.0.3&q=80&w=400" alt="Pôster de Filme 11" loading="lazy" />
+        </a>
+         <a href="detalhe12.html" class="movie-card" title="Pôster de Filme 12">
+          <img class="movie-poster" src="https://images.unsplash.com/photo-1600077779327-b11106df8b0c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w2MDgwNXwwfDF8c2VhcmNofDR8fHZlcnRpY2FsJTIwbW92aWwlMjBwb3N0ZXIlMjBoaWdoJTIwcmVzJmVuMHx8MHx8fDE3MTQ3Mjg1MjN8MA&ixlib=rb-4.0.3&q=80&w=400" alt="Pôster de Filme 12" loading="lazy" />
+        </a>
+      </div>
+      <button class="nav-button nav-left" aria-label="Scroll para esquerda" data-target="slider1">❮</button>
+      <button class="nav-button nav-right" aria-label="Scroll para direita" data-target="slider1">❯</button>
+    </div>
+  </section>
+
+  <section>
+    <h2>Continuar Assistindo</h2>
+    <div class="slider-container">
+      <button class="nav-button nav-left" aria-label="Scroll para esquerda" data-target="slider2">❮</button>
+      <div class="slider" id="slider2" tabindex="0" aria-label="Carrossel continuar assistindo">
+         <!-- >>> ESTA SEÇÃO USA DIVs SEM LINK (URLs substituídas) <<< -->
+        <div class="movie-card" title="Pôster de Filme a01">
+          <img class="movie-poster" src="a01.jpg" alt="Pôster de Filme a01" loading="lazy" />
+        </div>
+        <div class="movie-card" title="Pôster de Filme a02">
+          <img class="movie-poster" src="a02.jpg" alt="Pôster de Filme a02" loading="lazy" />
+        </div>
+        <div class="movie-card" title="Pôster de Filme a03">
+          <img class="movie-poster" src="a03.jpg" alt="Pôster de Filme a03" loading="lazy" />
+        </div>
+        <div class="movie-card" title="Pôster de Filme a04">
+          <img class="movie-poster" src="a04.jpg" alt="Pôster de Filme a04" loading="lazy" />
+        </div>
+        <div class="movie-card" title="Pôster de Filme a05">
+          <img class="movie-poster" src="a05.jpg" alt="Pôster de Filme a05" loading="lazy" />
+        </div>
+         <div class="movie-card" title="Pôster de Filme a06">
+          <img class="movie-poster" src="a06.jpg" alt="Pôster de Filme a06" loading="lazy" />
+        </div>
+        <div class="movie-card" title="Pôster de Filme a07">
+          <img class="movie-poster" src="a07.jpg" alt="Pôster de Filme a07" loading="lazy" />
+        </div>
+        <div class="movie-card" title="Pôster de Filme a08">
+          <img class="movie-poster" src="a08.jpg" alt="Pôster de Filme a08" loading="lazy" />
+        </div>
+        <div class="movie-card" title="Pôster de Filme a09">
+          <img class="movie-poster" src="a09.jpg" alt="Pôster de Filme a09" loading="lazy" />
+        </div>
+        <div class="movie-card" title="Pôster de Filme a10">
+          <img class="movie-poster" src="a10.jpg" alt="Pôster de Filme a10" loading="lazy" />
+        </div>
+         <div class="movie-card" title="Pôster de Filme a11">
+          <img class="movie-poster" src="a11.jpg" alt="Pôster de Filme a11" loading="lazy" />
+        </div>
+         <div class="movie-card" title="Pôster de Filme a12">
+          <img class="movie-poster" src="a12.jpg" alt="Pôster de Filme a12" loading="lazy" />
+        </div>
+      </div>
+      <button class="nav-button nav-right" aria-label="Scroll para direita" data-target="slider2">❯</button>
+    </div>
+  </section>
+
+  <section>
+    <h2>NOVIDADES PARA VOCÊ</h2>
+    <div class="slider-container">
+      <button class="nav-button nav-left" aria-label="Scroll para esquerda" data-target="slider3">❮</button>
+      <div class="slider" id="slider3" tabindex="0" aria-label="Carrossel novidades para você">
+        <!-- >>> ESTA SEÇÃO USA DIVs SEM LINK (URLs substituídas) <<< -->
+        <div class="movie-card" title="Pôster de Filme a13">
+          <img class="movie-poster" src="a13.jpg" alt="Pôster de Filme a13" loading="lazy" />
+        </div>
+        <div class="movie-card" title="Pôster de Filme a14">
+          <img class="movie-poster" src="a14.jpg" alt="Pôster de Filme a14" loading="lazy" />
+        </div>
+        <div class="movie-card" title="Pôster de Filme a15">
+          <img class="movie-poster" src="a15.jpg" alt="Pôster de Filme a15" loading="lazy" />
+        </div>
+        <div class="movie-card" title="Pôster de Filme a16">
+          <img class="movie-poster" src="a16.jpg" alt="Pôster de Filme a16" loading="lazy" />
+        </div>
+        <div class="movie-card" title="Pôster de Filme a17">
+          <img class="movie-poster" src="a17.jpg" alt="Pôster de Filme a17" loading="lazy" />
+        </div>
+         <div class="movie-card" title="Pôster de Filme a18">
+          <img class="movie-poster" src="a18.jpg" alt="Pôster de Filme a18" loading="lazy" />
+        </div>
+        <div class="movie-card" title="Pôster de Filme a19">
+          <img class="movie-poster" src="a19.jpg" alt="Pôster de Filme a19" loading="lazy" />
+        </div>
+        <div class="movie-card" title="Pôster de Filme a20">
+          <img class="movie-poster" src="a20.jpg" alt="Pôster de Filme a20" loading="lazy" />
+        </div>
+        <div class="movie-card" title="Pôster de Filme a21">
+          <img class="movie-poster" src="a21.jpg" alt="Pôster de Filme a21" loading="lazy" />
+        </div>
+        <div class="movie-card" title="Pôster de Filme a22">
+          <img class="movie-poster" src="a22.jpg" alt="Pôster de Filme a22" loading="lazy" />
+        </div>
+         <div class="movie-card" title="Pôster de Filme a23">
+          <img class="movie-poster" src="a23.jpg" alt="Pôster de Filme a23" loading="lazy" />
+        </div>
+         <div class="movie-card" title="Pôster de Filme a24">
+          <img class="movie-poster" src="a24.jpg" alt="Pôster de Filme a24" loading="lazy" />
+        </div>
+      </div>
+      <button class="nav-button nav-right" aria-label="Scroll para direita" data-target="slider3">❯</button>
+    </div>
+  </section>
+
+  <section>
+    <h2>LANÇAMENTOS</h2>
+    <div class="slider-container">
+      <button class="nav-button nav-left" aria-label="Scroll para esquerda" data-target="slider4">❮</button>
+      <div class="slider" id="slider4" tabindex="0" aria-label="Carrossel Comédias">
+        <!-- >>> ESTA SEÇÃO USA DIVs SEM LINK (URLs substituídas) <<< -->
+        <div class="movie-card" title="Pôster de Filme a25">
+          <img class="movie-poster" src="a25.jpg" alt="Pôster de Filme a25" loading="lazy" />
+        </div>
+        <div class="movie-card" title="Pôster de Filme a26">
+          <img class="movie-poster" src="a26.jpg" alt="Pôster de Filme a26" loading="lazy" />
+        </div>
+        <div class="movie-card" title="Pôster de Filme a27">
+          <img class="movie-poster" src="a27.jpg" alt="Pôster de Filme a27" loading="lazy" />
+        </div>
+        <div class="movie-card" title="Pôster de Filme a28">
+          <img class="movie-poster" src="a28.jpg" alt="Pôster de Filme a28" loading="lazy" />
+        </div>
+        <div class="movie-card" title="Pôster de Filme a29">
+          <img class="movie-poster" src="a29.jpg" alt="Pôster de Filme a29" loading="lazy" />
+        </div>
+         <div class="movie-card" title="Pôster de Filme a30">
+          <img class="movie-poster" src="a30.jpg" alt="Pôster de Filme a30" loading="lazy" />
+        </div>
+        <div class="movie-card" title="Pôster de Filme a31">
+          <img class="movie-poster" src="a31.jpg" alt="Pôster de Filme a31" loading="lazy" />
+        </div>
+        <div class="movie-card" title="Pôster de Filme a32">
+          <img class="movie-poster" src="a32.jpg" alt="Pôster de Filme a32" loading="lazy" />
+        </div>
+        <div class="movie-card" title="Pôster de Filme a33">
+          <img class="movie-poster" src="a33.jpg" alt="Pôster de Filme a33" loading="lazy" />
+        </div>
+        <div class="movie-card" title="Pôster de Filme a34">
+          <img class="movie-poster" src="a34.jpg" alt="Pôster de Filme a34" loading="lazy" />
+        </div>
+         <div class="movie-card" title="Pôster de Filme a35">
+          <img class="movie-poster" src="a35.jpg" alt="Pôster de Filme a35" loading="lazy" />
+        </div>
+         <div class="movie-card" title="Pôster de Filme a36">
+          <img class="movie-poster" src="a36.jpg" alt="Pôster de Filme a36" loading="lazy" />
+        </div>
+      </div>
+      <button class="nav-button nav-left" aria-label="Scroll para esquerda" data-target="slider4">❮</button>
+      <button class="nav-button nav-right" aria-label="Scroll para direita" data-target="slider4">❯</button>
+    </div>
+  </section>
+
+  <section>
+    <h2>VOCÊ SO ENCONTRA NA OMINIFLIX</h2>
+    <div class="slider-container">
+      <button class="nav-button nav-left" aria-label="Scroll para esquerda" data-target="slider5">❮</button>
+      <div class="slider" id="slider5" tabindex="0" aria-label="Carrossel Ação">
+        <!-- >>> ESTA SEÇÃO USA DIVs SEM LINK (URLs substituídas) <<< -->
+        <div class="movie-card" title="Pôster de Filme a37">
+          <img class="movie-poster" src="a37.jpg" alt="Pôster de Filme a37" loading="lazy" />
+        </div>
+        <div class="movie-card" title="Pôster de Filme a38">
+          <img class="movie-poster" src="a38.jpg" alt="Pôster de Filme a38" loading="lazy" />
+        </div>
+        <div class="movie-card" title="Pôster de Filme a39">
+          <img class="movie-poster" src="a39.jpg" alt="Pôster de Filme a39" loading="lazy" />
+        </div>
+        <div class="movie-card" title="Pôster de Filme a40">
+          <img class="movie-poster" src="a40.jpg" alt="Pôster de Filme a40" loading="lazy" />
+        </div>
+        <div class="movie-card" title="Pôster de Filme a41">
+          <img class="movie-poster" src="a41.jpg" alt="Pôster de Filme a41" loading="lazy" />
+        </div>
+         <div class="movie-card" title="Pôster de Filme a42">
+          <img class="movie-poster" src="a42.jpg" alt="Pôster de Filme a42" loading="lazy" />
+        </div>
+        <div class="movie-card" title="Pôster de Filme a43">
+          <img class="movie-poster" src="a43.jpg" alt="Pôster de Filme a43" loading="lazy" />
+        </div>
+        <div class="movie-card" title="Pôster de Filme a44">
+          <img class="movie-poster" src="a44.jpg" alt="Pôster de Filme a44" loading="lazy" />
+        </div>
+        <div class="movie-card" title="Pôster de Filme a45">
+          <img class="movie-poster" src="a45.jpg" alt="Pôster de Filme a45" loading="lazy" />
+        </div>
+        <div class="movie-card" title="Pôster de Filme a46">
+          <img class="movie-poster" src="a46.jpg" alt="Pôster de Filme a46" loading="lazy" />
+        </div>
+         <div class="movie-card" title="Pôster de Filme a47">
+          <img class="movie-poster" src="a47.jpg" alt="Pôster de Filme a47" loading="lazy" />
+        </div>
+         <div class="movie-card" title="Pôster de Filme a48">
+          <img class="movie-poster" src="a48.jpg" alt="Pôster de Filme a48" loading="lazy" />
+        </div>
+      </div>
+      <button class="nav-button nav-right" aria-label="Scroll para direita" data-target="slider5">❯</button>
+    </div>
+  </section>
+
+  <section>
+    <h2>MAIS ASSISTIDOS</h2>
+    <div class="slider-container">
+      <button class="nav-button nav-left" aria-label="Scroll para esquerda" data-target="slider6">❮</button>
+      <div class="slider" id="slider6" tabindex="0" aria-label="Carrossel Documentários">
+         <!-- >>> ESTA SEÇÃO USA DIVs SEM LINK (URLs substituídas) <<< -->
+        <div class="movie-card" title="Pôster de Filme a49">
+          <img class="movie-poster" src="a49.jpg" alt="Pôster de Filme a49" loading="lazy" />
+        </div>
+        <div class="movie-card" title="Pôster de Filme a50">
+          <img class="movie-poster" src="a50.jpg" alt="Pôster de Filme a50" loading="lazy" />
+        </div>
+        <div class="movie-card" title="Pôster de Filme a51">
+          <img class="movie-poster" src="a51.jpg" alt="Pôster de Filme a51" loading="lazy" />
+        </div>
+        <div class="movie-card" title="Pôster de Filme a52">
+          <img class="movie-poster" src="a52.jpg" alt="Pôster de Filme a52" loading="lazy" />
+        </div>
+        <div class="movie-card" title="Pôster de Filme a53">
+          <img class="movie-poster" src="a53.jpg" alt="Pôster de Filme a53" loading="lazy" />
+        </div>
+         <div class="movie-card" title="Pôster de Filme a54">
+          <img class="movie-poster" src="a54.jpg" alt="Pôster de Filme a54" loading="lazy" />
+        </div>
+        <div class="movie-card" title="Pôster de Filme a55">
+          <img class="movie-poster" src="a55.jpg" alt="Pôster de Filme a55" loading="lazy" />
+        </div>
+        <div class="movie-card" title="Pôster de Filme a56">
+          <img class="movie-poster" src="a56.jpg" alt="Pôster de Filme a56" loading="lazy" />
+        </div>
+        <div class="movie-card" title="Pôster de Filme a57">
+          <img class="movie-poster" src="a57.jpg" alt="Pôster de Filme a57" loading="lazy" />
+        </div>
+        <div class="movie-card" title="Pôster de Filme a58">
+          <img class="movie-poster" src="a58.jpg" alt="Pôster de Filme a58" loading="lazy" />
+        </div>
+         <div class="movie-card" title="Pôster de Filme a59">
+          <img class="movie-poster" src="a59.jpg" alt="Pôster de Filme a59" loading="lazy" />
+        </div>
+         <div class="movie-card" title="Pôster de Filme a60">
+          <img class="movie-poster" src="a60.jpg" alt="Pôster de Filme a60" loading="lazy" />
+        </div>
+      </div>
+      <button class="nav-button nav-right" aria-label="Scroll para direita" data-target="slider6">❯</button>
+    </div>
+  </section>
+</main>
+
+<footer>
+  © 2025 OMINIFLIX. Todos os direitos reservados.
+</footer>
+
+<script>
+  // Função para configurar os botões de navegação para um slider específico
+  function setupSliderNav(sliderId) {
+    const slider = document.getElementById(sliderId);
+    const btnLeft = document.querySelector(`.nav-button.nav-left[data-target="${sliderId}"]`);
+    const btnRight = document.querySelector(`.nav-button.nav-right[data-target="${sliderId}"]`);
+
+    if (!slider) {
+      console.error(`Slider with ID "${sliderId}" not found.`);
+      return;
+    }
+
+    // Oculta botões se não houver rolagem possível ou em telas pequenas
+    // (Mantido para consistência, embora o CSS já oculte em telas pequenas)
+    const checkScrollability = () => {
+       if(slider.scrollWidth <= slider.clientWidth) {
+            if(btnLeft) btnLeft.style.display = 'none';
+            if(btnRight) btnRight.style.display = 'none';
+       } else {
+            // Reativa display, CSS media query cuidará da visibilidade em telas pequenas
+            if(btnLeft) btnLeft.style.display = '';
+            if(btnRight) btnRight.style.display = '';
+
+            // Opcional: Ocultar botões nas extremidades (descomente se desejar)
+            // if(btnLeft) btnLeft.style.visibility = slider.scrollLeft > 0 ? 'visible' : 'hidden';
+            // if(btnRight) btnRight.style.visibility = slider.scrollLeft < slider.scrollWidth - slider.clientWidth ? 'visible' : 'hidden';
+       }
+    };
+
+    if (btnLeft) {
+      btnLeft.addEventListener('click', () => {
+        // Rola uma quantidade baseada na largura visível do slider (ex: 80%)
+        const scrollAmount = slider.clientWidth * 0.8;
+        slider.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+        // Opcional: Atualizar visibilidade dos botões após a rolagem (se descomentou checkScrollability)
+        // setTimeout(checkScrollability, 300); // Pequeno delay para a rolagem terminar
+      });
+    }
+
+    if (btnRight) {
+      btnRight.addEventListener('click', () => {
+         // Rola uma quantidade baseada na largura visível do slider (ex: 80%)
+        const scrollAmount = slider.clientWidth * 0.8;
+        slider.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+        // Opcional: Atualizar visibilidade dos botões após a rolagem (se descomentou checkScrollability)
+        // setTimeout(checkScrollability, 300); // Pequeno delay para a rolagem terminar
+      });
+    }
+
+    // Verifica a rolagem ao carregar e redimensionar a janela
+    // checkScrollability(); // Pode ser chamado aqui se quiser ocultar nas extremidades
+    // slider.addEventListener('scroll', checkScrollability); // Opcional para ocultar/mostrar nas extremidades
+    // window.addEventListener('resize', checkScrollability); // Opcional para ocultar/mostrar se o tamanho mudar
+  }
+
+  // Configure a navegação para cada slider
+  document.addEventListener('DOMContentLoaded', () => {
+      setupSliderNav('slider1');
+      setupSliderNav('slider2');
+      setupSliderNav('slider3');
+      setupSliderNav('slider4');
+      setupSliderNav('slider5');
+      setupSliderNav('slider6');
+      // Adicione mais chamadas setupSliderNav para cada slider que você adicionar
+  });
+
+</script>
+
+</body>
+</html>

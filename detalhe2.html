@@ -1,0 +1,369 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>Inception - Detalhes do Filme</title>
+<style>
+  /* Reset */
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    background-color: #141414;
+    color: white;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    min-height: 100vh;
+    padding-bottom: 40px; /* Espaço extra no final */
+  }
+
+  /* Header simplificado para a página de detalhes */
+  .detail-header {
+    background-color: #111;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Espaça os itens */
+    box-shadow: 0 2px 8px rgba(0,0,0,0.8);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .detail-header .back-link {
+    color: white; /* Link branco no header */
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: normal;
+    display: flex; /* Permite alinhar o ícone */
+    align-items: center;
+    transition: color 0.3s ease;
+  }
+
+   .detail-header .back-link:hover {
+       color: #b3b3b3; /* Cor levemente mais clara no hover */
+   }
+
+  .detail-header .back-link span {
+      margin-left: 5px; /* Espaço entre a seta e o texto */
+  }
+
+  .detail-header .logo {
+    font-weight: 900;
+    font-size: 1.5rem; /* Logo um pouco menor no header da página de detalhes */
+    color: #e50914;
+    letter-spacing: 1px;
+    user-select:none;
+  }
+
+
+  .container {
+    max-width: 900px; /* Largura maior para o conteúdo */
+    margin: 20px auto; /* Centraliza e adiciona espaço acima */
+    padding: 0 20px; /* Padding nas laterais */
+  }
+
+  .detail-content {
+    display: flex; /* Habilita Flexbox */
+    gap: 30px; /* Espaço entre o poster e as informações */
+    flex-wrap: wrap; /* Permite que os itens quebrem para a próxima linha em telas menores */
+    align-items: flex-start; /* Alinha itens ao topo */
+  }
+
+  .poster-area {
+    flex: 0 0 300px; /* Tamanho base de 300px, não cresce nem encolhe */
+    max-width: 100%; /* Garante que não exceda o pai em telas pequenas */
+    position: relative; /* Necessário para posicionar elementos filhos, se houver */
+  }
+
+   .poster-area img {
+    width: 100%; /* Imagem cobre a área do poster */
+    height: auto; /* Mantém proporção */
+    border-radius: 8px; /* Borda arredondada maior */
+    box-shadow: 0 10px 20px rgba(0,0,0,0.5); /* Sombra mais proeminente */
+    display: block; /* Remove espaço extra abaixo da imagem */
+    object-fit: cover; /* Garante que a imagem cubra a área sem distorcer */
+  }
+
+
+  .info-area {
+    flex: 1; /* Ocupa o espaço restante */
+    min-width: 0; /* Permite que o flex item encolha corretamente */
+  }
+
+  .info-area h1 {
+    font-size: 2.5rem;
+    margin-bottom: 15px;
+    line-height: 1.2;
+  }
+
+  .meta-info {
+    font-size: 1rem;
+    color: #b3b3b3; /* Cor cinza para metadados */
+    margin-bottom: 20px;
+  }
+
+  .meta-info span {
+    margin-right: 10px; /* Espaço entre os itens de metadados */
+  }
+
+  .meta-info span:last-child {
+    margin-right: 0; /* Remove margem do último item */
+  }
+
+  .description {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 30px; /* Espaço antes dos botões */
+    color: #ccc; /* Cor levemente mais clara que o branco puro */
+  }
+
+  .buttons {
+    display: flex;
+    gap: 15px; /* Espaço entre os botões */
+    margin-bottom: 30px;
+  }
+
+  .buttons button {
+    padding: 12px 24px;
+    font-size: 1.1rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .buttons button i {
+      margin-right: 8px; /* Espaço entre ícone e texto */
+  }
+
+
+  .play-button {
+    background-color: white;
+    color: black;
+    font-weight: bold;
+  }
+
+  .play-button:hover {
+    background-color: rgba(255, 255, 255, 0.8);
+  }
+
+  .list-button {
+    background-color: rgba(109, 109, 110, 0.7);
+    color: white;
+    border: 1px solid rgba(255,255,255,0.5); /* Borda sutil */
+  }
+
+  .list-button:hover {
+    background-color: rgba(109, 109, 110, 0.5);
+    border-color: rgba(255,255,255,0.8);
+  }
+
+  /* Footer minimal */
+  footer {
+    text-align: center;
+    font-size: 0.85rem;
+    color: #666;
+    padding: 20px;
+    margin-top: 30px; /* Espaço acima do rodapé */
+  }
+
+
+  /* Estilos Responsivos */
+
+  /* Tablet Grande / Desktop Pequeno */
+  @media (max-width: 1024px) {
+      .container {
+          max-width: 768px;
+      }
+      .poster-area {
+          flex-basis: 250px; /* Poster um pouco menor */
+      }
+      .info-area h1 {
+          font-size: 2.2rem;
+      }
+      .description {
+          font-size: 1.05rem;
+      }
+      .buttons button {
+          padding: 10px 20px;
+          font-size: 1rem;
+      }
+  }
+
+
+  /* Tablet / Mobile Grande */
+  @media (max-width: 768px) {
+    .container {
+      padding: 0 15px; /* Reduz padding lateral */
+      margin-top: 15px;
+    }
+    .detail-content {
+      flex-direction: column; /* Empilha os itens verticalmente */
+      align-items: center; /* Centraliza os itens empilhados */
+      gap: 20px; /* Espaço menor quando empilhado */
+    }
+    .poster-area {
+      flex-basis: auto; /* Remove o tamanho fixo */
+      width: 50%; /* O poster ocupa 50% da largura */
+      max-width: 250px; /* Mas não excede 250px (evita pôsteres muito grandes em tablets largos) */
+    }
+     .poster-area img {
+        box-shadow: 0 8px 15px rgba(0,0,0,0.4); /* Sombra um pouco menor */
+     }
+    .info-area {
+      flex: auto; /* Ocupa o espaço necessário */
+      width: 100%; /* Ocupa a largura total */
+    }
+     .info-area h1 {
+        font-size: 2rem;
+        text-align: center; /* Centraliza título */
+     }
+     .meta-info {
+         text-align: center; /* Centraliza metadados */
+         font-size: 0.95rem;
+     }
+     .description {
+         font-size: 1rem;
+         margin-bottom: 20px;
+     }
+     .buttons {
+         justify-content: center; /* Centraliza botões */
+         gap: 10px;
+         margin-bottom: 20px;
+     }
+     .buttons button {
+         padding: 10px 15px;
+         font-size: 0.95rem;
+     }
+     .detail-header {
+        padding: 10px 15px;
+     }
+     .detail-header .logo {
+        font-size: 1.3rem;
+     }
+      .detail-header .back-link {
+        font-size: 0.95rem;
+      }
+  }
+
+  /* Mobile Pequeno */
+  @media (max-width: 480px) {
+    .container {
+      padding: 0 10px;
+    }
+    .poster-area {
+      width: 60%; /* O poster ocupa 60% em telas pequenas */
+      max-width: 180px; /* Limite menor */
+    }
+     .poster-area img {
+        border-radius: 6px;
+        box-shadow: 0 5px 10px rgba(0,0,0,0.4);
+     }
+    .info-area h1 {
+      font-size: 1.6rem;
+      margin-bottom: 10px;
+    }
+    .meta-info {
+        font-size: 0.9rem;
+        margin-bottom: 15px;
+    }
+    .description {
+        font-size: 0.95rem;
+        margin-bottom: 15px;
+    }
+     .buttons {
+         flex-direction: column; /* Empilha botões em telas muito pequenas */
+         gap: 8px;
+         margin-bottom: 15px;
+     }
+     .buttons button {
+         width: 100%; /* Botões ocupam largura total */
+         padding: 10px;
+         font-size: 0.9rem;
+     }
+      .detail-header {
+        padding: 8px 10px;
+     }
+      .detail-header .logo {
+        font-size: 1.2rem;
+     }
+       .detail-header .back-link {
+        font-size: 0.9rem;
+      }
+       .detail-header .back-link span {
+            display: none; /* Oculta o texto "Voltar..." para economizar espaço */
+       }
+  }
+</style>
+<!-- Opcional: Link para Font Awesome se quiser usar ícones nos botões -->
+<!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"> -->
+</head>
+<body>
+<header class="detail-header">
+  <a href="index.html" class="back-link" aria-label="Voltar para o Início">
+    ←<span>Voltar para o Início</span>
+  </a>
+  <div class="logo" aria-label="Logo Netflix">OMINIFLIX</div>
+</header>
+
+<div class="container">
+  <div class="detail-content">
+    <div class="poster-area">
+      <!-- Altere a URL da imagem aqui -->
+      <img src="https://via.placeholder.com/400x600/FF6347/FFFFFF?text=Poster+do+Filme" alt="Pôster do Filme" loading="eager" />
+    </div>
+    <div class="info-area">
+      <!-- Altere o título aqui -->
+      <h1>Nome do Filme</h1>
+      <div class="meta-info">
+        <!-- Altere os metadados aqui -->
+        <span>2023</span> | <span>Gênero 1, Gênero 2</span> | <span>Avaliação: 8.5/10</span>
+      </div>
+      <p class="description">
+        <!-- Altere a descrição aqui -->
+        Este é um espaço para a sinopse detalhada do filme ou série.
+        Aqui você pode adicionar mais informações sobre a trama, os personagens principais,
+        o diretor e outros detalhes relevantes para o espectador.
+        O objetivo é dar uma ideia clara do que esperar da produção.
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor
+        incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
+        exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+      </p>
+      <div class="buttons">
+        <button class="play-button" aria-label="Reproduzir Filme">
+          <!-- Ícone opcional (requer Font Awesome ou similar) -->
+          <!-- <i class="fas fa-play"></i> -->
+          Reproduzir
+        </button>
+        <button class="list-button" aria-label="Adicionar à Minha Lista">
+           <!-- Ícone opcional (requer Font Awesome ou similar) -->
+           <!-- <i class="fas fa-plus"></i> -->
+           Minha Lista
+        </button>
+      </div>
+      <!-- Você pode adicionar mais seções aqui, como Elenco, Diretoria, etc. -->
+      <!-- Exemplo:
+      <div class="cast-info">
+          <h3>Elenco:</h3>
+          <p>Ator 1, Ator 2, Ator 3...</p>
+      </div>
+      -->
+    </div>
+  </div>
+</div>
+
+<footer>
+  © 2025 OMINIFLIX. Todos os direitos reservados.
+</footer>
+
+</body>
+</html>
