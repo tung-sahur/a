@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>Armazenagem em Estantes Deslizantes - Detalhes</title>
+<style>
+  /* Copie e cole o CSS da página de detalhes aqui (é o mesmo para todas) */
+  /* Reset */
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    background-color: #141414;
+    color: white;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    min-height: 100vh;
+    padding-bottom: 40px; /* Espaço extra no final */
+  }
+
+  /* Header simplificado para a página de detalhes */
+  .detail-header {
+    background-color: #111;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Espaça os itens */
+    box-shadow: 0 2px 8px rgba(0,0,0,0.8);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .detail-header .back-link {
+    color: white; /* Link branco no header */
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: normal;
+    display: flex; /* Permite alinhar o ícone */
+    align-items: center;
+    transition: color 0.3s ease;
+  }
+
+   .detail-header .back-link:hover {
+       color: #b3b3b3; /* Cor levemente mais clara no hover */
+   }
+
+  .detail-header .back-link span {
+      margin-left: 5px; /* Espaço entre a seta e o texto */
+  }
+
+  .detail-header .logo {
+    font-weight: 900;
+    font-size: 1.5rem; /* Logo um pouco menor no header da página de detalhes */
+    color: #e50914;
+    letter-spacing: 1px;
+    user-select:none;
+  }
+
+
+  .container {
+    max-width: 900px; /* Largura maior para o conteúdo */
+    margin: 20px auto; /* Centraliza e adiciona espaço acima */
+    padding: 0 20px; /* Padding nas laterais */
+  }
+
+  .detail-content {
+    display: flex; /* Habilita Flexbox */
+    gap: 30px; /* Espaço entre o poster e as informações */
+    flex-wrap: wrap; /* Permite que os itens quebrem para a próxima linha em telas menores */
+    align-items: flex-start; /* Alinha itens ao topo */
+  }
+
+  .poster-area {
+    flex: 0 0 300px; /* Tamanho base de 300px, não cresce nem encolhe */
+    max-width: 100%; /* Garante que não exceda o pai em telas pequenas */
+    position: relative; /* Necessário para posicionar elementos filhos, se houver */
+  }
+
+   .poster-area img {
+    width: 100%; /* Imagem cobre a área do poster */
+    height: auto; /* Mantém proporção */
+    border-radius: 8px; /* Borda arredondada maior */
+    box-shadow: 0 10px 20px rgba(0,0,0,0.5); /* Sombra mais proeminente */
+    display: block; /* Remove espaço extra abaixo da imagem */
+    object-fit: cover; /* Garante que a imagem cubra a área sem distorcer */
+  }
+
+
+  .info-area {
+    flex: 1; /* Ocupa o espaço restante */
+    min-width: 0; /* Permite que o flex item encolha corretamente */
+  }
+
+  .info-area h1 {
+    font-size: 2.5rem;
+    margin-bottom: 15px;
+    line-height: 1.2;
+  }
+
+  .meta-info {
+    font-size: 1rem;
+    color: #b3b3b3; /* Cor cinza para metadados */
+    margin-bottom: 20px;
+  }
+
+  .meta-info span {
+    margin-right: 10px; /* Espaço entre os itens de metadados */
+  }
+
+  .meta-info span:last-child {
+    margin-right: 0; /* Remove margem do último item */
+  }
+
+  .description {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 30px; /* Espaço antes dos botões */
+    color: #ccc; /* Cor levemente mais clara que o branco puro */
+  }
+
+  /* REMOVIDO: Estilos dos botões não são mais necessários */
+
+
+  /* Footer minimal */
+  footer {
+    text-align: center;
+    font-size: 0.85rem;
+    color: #666;
+    padding: 20px;
+    margin-top: 30px; /* Espaço acima do rodapé */
+  }
+
+
+  /* Estilos Responsivos */
+
+  /* Tablet Grande / Desktop Pequeno */
+  @media (max-width: 1024px) {
+      .container {
+          max-width: 768px;
+      }
+      .poster-area {
+          flex-basis: 250px; /* Poster um pouco menor */
+      }
+      .info-area h1 {
+          font-size: 2.2rem;
+      }
+      .description {
+          font-size: 1.05rem;
+      }
+      /* REMOVIDO: Botões estilos responsivos */
+  }
+
+
+  /* Tablet / Mobile Grande */
+  @media (max-width: 768px) {
+    .container {
+      padding: 0 15px; /* Reduz padding lateral */
+      margin-top: 15px;
+    }
+    .detail-content {
+      flex-direction: column; /* Empilha os itens verticalmente */
+      align-items: center; /* Centraliza os itens empilhados */
+      gap: 20px; /* Espaço menor quando empilhado */
+    }
+    .poster-area {
+      flex-basis: auto; /* Remove o tamanho fixo */
+      width: 50%; /* O poster ocupa 50% da largura */
+      max-width: 250px; /* Limita a largura */
+    }
+     .poster-area img {
+        box-shadow: 0 8px 15px rgba(0,0,0,0.4); /* Sombra um pouco menor */
+     }
+    .info-area {
+      flex: auto; /* Ocupa o espaço necessário */
+      width: 100%; /* Ocupa a largura total */
+    }
+     .info-area h1 {
+        font-size: 2rem;
+        text-align: center; /* Centraliza título */
+     }
+     .meta-info {
+         text-align: center; /* Centraliza metadados */
+         font-size: 0.95rem;
+     }
+     .description {
+         font-size: 1rem;
+         margin-bottom: 20px;
+     }
+     /* REMOVIDO: Botões estilos responsivos */
+     .detail-header {
+        padding: 10px 15px;
+     }
+     .detail-header .logo {
+        font-size: 1.3rem;
+     }
+      .detail-header .back-link {
+        font-size: 0.95rem;
+      }
+       .detail-header .back-link span {
+            margin-left: 3px; /* Espaço menor */
+       }
+  }
+
+  /* Mobile Pequeno */
+  @media (max-width: 480px) {
+    .container {
+      padding: 0 10px;
+    }
+    .poster-area {
+      width: 60%; /* O poster ocupa 60% em telas pequenas */
+      max-width: 180px; /* Limite menor */
+    }
+     .poster-area img {
+        border-radius: 6px;
+        box-shadow: 0 5px 10px rgba(0,0,0,0.4);
+     }
+    .info-area h1 {
+      font-size: 1.6rem;
+      margin-bottom: 10px;
+    }
+    .meta-info {
+        font-size: 0.9rem;
+        margin-bottom: 15px;
+    }
+    .description {
+        font-size: 0.95rem;
+        margin-bottom: 15px;
+    }
+    /* REMOVIDO: Botões estilos responsivos */
+      .detail-header {
+        padding: 8px 10px;
+     }
+      .detail-header .logo {
+        font-size: 1.2rem;
+     }
+       .detail-header .back-link span {
+            display: none; /* Oculta o texto "Voltar..." para economizar espaço */
+       }
+  }
+</style>
+</head>
+<body>
+<header class="detail-header">
+  <a href="index.html" class="back-link" aria-label="Voltar para o Início">
+    ←<span>Voltar para o Início</span>
+  </a>
+  <div class="logo" aria-label="Logo Netflix">OMNIFLIX</div>
+</header>
+
+<div class="container">
+  <div class="detail-content">
+    <div class="poster-area">
+      <img src="Armazenagem em Estantes Deslizantes.png" alt="Imagem de Armazenagem em Estantes Deslizantes" loading="eager" />
+    </div>
+    <div class="info-area">
+      <h1>Armazenagem em Estantes Deslizantes (Sliding Shelves)</h1>
+      <div class="meta-info">
+        <span>Tipo: Compacto/Dinâmico</span> | <span>Ideal para: Produtos de baixo volume/acesso ocasional</span> | <span>Aplicações: Arquivos, Almoxarifados de Peças Pequenas</span>
+      </div>
+      <p class="description">
+        Estantes deslizantes são sistemas de armazenamento que montam prateleiras ou racks sobre bases móveis que deslizam sobre trilhos. Isso permite compactar o espaço de armazenamento, eliminando corredores fixos; um corredor é aberto apenas no local onde o acesso é necessário no momento.
+        Este sistema é excelente para otimizar a utilização do espaço e facilitar o acesso, embora o acesso simultâneo a diferentes corredores seja limitado. É ideal para armazenar produtos de baixo volume ou que não têm alta rotatividade, como arquivos, livros, ferramentas e peças pequenas em almoxarifados ou estoques de segurança.
+      </p>
+      <!-- REMOVIDO: Botões -->
+    </div>
+  </div>
+</div>
+
+<footer>
+  © 2025 OMNIFLIX. Todos os direitos reservados.
+</footer>
+
+</body>
+</html>
